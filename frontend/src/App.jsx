@@ -1,122 +1,82 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import { useState } from 'react';
+import FormularioPrincipal from './pages/formularioPrincipal';
+import CrearProducto from './pages/crearProducto';
+import ActualizarProducto from './pages/actualizarProducto';
+import EliminarProducto from './pages/eliminarProducto';
+import './App.css';
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const [vistaActual, setVistaActual] = useState('productos');
+  const [articulos, setArticulos] = useState([
+    // Un par de artículos de prueba iniciales para que los veas en la lista
+    { Codigo: 'ART-001', Descripcion: 'Teclado Mecánico', Precio_Venta: '350.00', Ubicacion: 'Pasillo 1', Proveedor: 'PROV-01', Precio_Compra: '200.00' },
+    { Codigo: 'ART-002', Descripcion: 'Mouse Gamer', Precio_Venta: '180.00', Ubicacion: 'Pasillo 2', Proveedor: 'PROV-02', Precio_Compra: '100.00' }
+  ]);
+
+  // Función para agregar artículo
+  const handleAgregarArticulo = (nuevoArticulo) => {
+    setArticulos([...articulos, nuevoArticulo]);
+  };
+
+  // Función para eliminar artículo por código
+  const handleEliminarArticulo = (codigo) => {
+    const nuevosArticulos = articulos.filter(art => art.Codigo !== codigo);
+    setArticulos(nuevosArticulos);
+  };
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
+    <div className="layout">
+      {/* Barra Lateral estilo IA */}
+      <aside className="sidebar">
         <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
+          <div className="sidebar-title">STARK SYSTEM</div>
+          <nav className="sidebar-menu">
+            <button 
+              className={`btn-sidebar ${vistaActual === 'productos' ? 'active' : ''}`}
+              onClick={() => setVistaActual('productos')}
+            >
+              📦 Ver Productos
+            </button>
+            <button 
+              className={`btn-sidebar ${vistaActual === 'crear' ? 'active' : ''}`}
+              onClick={() => setVistaActual('crear')}
+            >
+              ➕ Crear Producto
+            </button>
+            <button 
+              className={`btn-sidebar ${vistaActual === 'actualizar' ? 'active' : ''}`}
+              onClick={() => setVistaActual('actualizar')}
+            >
+              ✏️ Actualizar Producto
+            </button>
+            <button 
+              className={`btn-sidebar ${vistaActual === 'eliminar' ? 'active' : ''}`}
+              onClick={() => setVistaActual('eliminar')}
+            >
+              🗑️ Eliminar Producto
+            </button>
+          </nav>
         </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+      </aside>
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+      {/* Contenido Dinámico */}
+      <main className="main-content">
+        {vistaActual === 'productos' && (
+          <FormularioPrincipal productos={articulos} cargando={false} />
+        )}
+        
+        {vistaActual === 'crear' && (
+          <CrearProducto onAgregarProducto={handleAgregarArticulo} />
+        )}
+        
+        {vistaActual === 'actualizar' && (
+          <ActualizarProducto />
+        )}
+        
+        {vistaActual === 'eliminar' && (
+          <EliminarProducto articulos={articulos} onEliminarArticulo={handleEliminarArticulo} />
+        )}
+      </main>
+    </div>
+  );
 }
-
-export default App
