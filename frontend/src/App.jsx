@@ -3,30 +3,16 @@ import FormularioPrincipal from './pages/formularioPrincipal';
 import CrearProducto from './pages/crearProducto';
 import ActualizarProducto from './pages/actualizarProducto';
 import EliminarProducto from './pages/eliminarProducto';
+import CrearProveedor from './pages/crearProveedor'; // <--- Importar la vista de proveedor
 import './App.css';
 
 export default function App() {
   const [vistaActual, setVistaActual] = useState('productos');
-  const [articulos, setArticulos] = useState([
-    // Un par de artículos de prueba iniciales para que los veas en la lista
-    { Codigo: 'ART-001', Descripcion: 'Teclado Mecánico', Precio_Venta: '350.00', Ubicacion: 'Pasillo 1', Proveedor: 'PROV-01', Precio_Compra: '200.00' },
-    { Codigo: 'ART-002', Descripcion: 'Mouse Gamer', Precio_Venta: '180.00', Ubicacion: 'Pasillo 2', Proveedor: 'PROV-02', Precio_Compra: '100.00' }
-  ]);
-
-  // Función para agregar artículo
-  const handleAgregarArticulo = (nuevoArticulo) => {
-    setArticulos([...articulos, nuevoArticulo]);
-  };
-
-  // Función para eliminar artículo por código
-  const handleEliminarArticulo = (codigo) => {
-    const nuevosArticulos = articulos.filter(art => art.Codigo !== codigo);
-    setArticulos(nuevosArticulos);
-  };
+  const [articulos, setArticulos] = useState([]);
 
   return (
     <div className="layout">
-      {/* Barra Lateral estilo IA */}
+      {/* Barra Lateral estilo Stark System */}
       <aside className="sidebar">
         <div>
           <div className="sidebar-title">STARK SYSTEM</div>
@@ -42,6 +28,12 @@ export default function App() {
               onClick={() => setVistaActual('crear')}
             >
               ➕ Crear Producto
+            </button>
+            <button 
+              className={`btn-sidebar ${vistaActual === 'crear-proveedor' ? 'active' : ''}`}
+              onClick={() => setVistaActual('crear-proveedor')}
+            >
+              🏢 Crear Proveedor
             </button>
             <button 
               className={`btn-sidebar ${vistaActual === 'actualizar' ? 'active' : ''}`}
@@ -66,7 +58,11 @@ export default function App() {
         )}
         
         {vistaActual === 'crear' && (
-          <CrearProducto onAgregarProducto={handleAgregarArticulo} />
+          <CrearProducto />
+        )}
+
+        {vistaActual === 'crear-proveedor' && (
+          <CrearProveedor />
         )}
         
         {vistaActual === 'actualizar' && (
@@ -74,7 +70,7 @@ export default function App() {
         )}
         
         {vistaActual === 'eliminar' && (
-          <EliminarProducto articulos={articulos} onEliminarArticulo={handleEliminarArticulo} />
+          <EliminarProducto articulos={articulos} />
         )}
       </main>
     </div>

@@ -1,37 +1,54 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Button from '../components/button';
 
-export default function CrearProducto({ onAgregarProducto }) {
-  const [codigo, setCodigo] = useState('');
+export default function CrearProducto() {
   const [descripcion, setDescripcion] = useState('');
   const [precioVenta, setPrecioVenta] = useState('');
-  const [ubicacion, setUbicacion] = useState('');
-  const [proveedor, setProveedor] = useState('');
   const [precioCompra, setPrecioCompra] = useState('');
+  const [ubicacion, setUbicacion] = useState('');
+  const [proveedorId, setProveedorId] = useState('');
+  const [proveedoresList, setProveedoresList] = useState([]);
 
-  const handleSubmit = (e) => {
+  useEffect(() => {
+    fetch('http://127.0.0.1:8001/api/proveedores/')
+      .then(res => res.json())
+      .then(data => setProveedoresList(data))
+      .catch(err => console.error('Error al cargar proveedores:', err));
+  }, []);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
     const nuevoArticulo = {
-      Codigo: codigo,
-      Descripcion: descripcion,
-      Precio_Venta: precioVenta,
-      Ubicacion: ubicacion,
-      Proveedor: proveedor,
-      Precio_Compra: precioCompra
+      descripcion,
+      precio_venta: parseFloat(precioVenta),
+      precio_compra: parseFloat(precioCompra),
+      ubicacion,
+      proveedor: parseInt(proveedorId)
     };
 
-    if (onAgregarProducto) {
-      onAgregarProducto(nuevoArticulo);
-    }
+    try {
+      const res = await fetch('http://127.0.0.1:8001/api/articulos/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(nuevoArticulo),
+      });
 
-    alert('¡Artículo creado localmente con éxito!');
-    // Limpiar campos
-    setCodigo('');
-    setDescripcion('');
-    setPrecioVenta('');
-    setUbicacion('');
-    setProveedor('');
-    setPrecioCompra('');
+      if (res.ok) {
+        alert('¡Artículo guardado en la base de datos con éxito!');
+        setDescripcion('');
+        setPrecioVenta('');
+        setPrecioCompra('');
+        setUbicacion('');
+        setProveedorId('');
+      } else {
+        alert('Error al guardar el artículo. Revisa los datos ingresados.');
+      }
+    } catch (error) {
+      console.error('Error de red:', error);
+    }
   };
 
   return (
@@ -39,31 +56,33 @@ export default function CrearProducto({ onAgregarProducto }) {
       <h2>Crear Nuevo Producto</h2>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
-          <label>Código del Artículo</label>
-          <input 
-            type="text" 
-            value={codigo} 
-            onChange={(e) => setCodigo(e.target.value)} 
-            placeholder="Ej. ART-001"
-            required 
-          />
-        </div>
-        <div className="form-group">
-          <label>Descripción</label>
+          <label>Descripción *</label>
           <input 
             type="text" 
             value={descripcion} 
             onChange={(e) => setDescripcion(e.target.value)} 
-            placeholder="Nombre o detalle del artículo"
+            placeholder="Descripción del artículo"
             required 
           />
         </div>
         <div className="form-group">
-          <label>Precio de Venta</label>
+          <label>Precio de Venta *</label>
           <input 
             type="number" 
+            step="0.01"
             value={precioVenta} 
             onChange={(e) => setPrecioVenta(e.target.value)} 
+            placeholder="0.00"
+            required 
+          />
+        </div>
+        <div className="form-group">
+          <label>Precio de Compra *</label>
+          <input 
+            type="number" 
+            step="0.01"
+            value={precioCompra} 
+            onChange={(e) => setPrecioCompra(e.target.value)} 
             placeholder="0.00"
             required 
           />
@@ -78,23 +97,20 @@ export default function CrearProducto({ onAgregarProducto }) {
           />
         </div>
         <div className="form-group">
-          <label>Proveedor (Llave Foránea - Código)</label>
-          <input 
-            type="text" 
-            value={proveedor} 
-            onChange={(e) => setProveedor(e.target.value)} 
-            placeholder="Código del proveedor"
-            required 
-          />
-        </div>
-        <div className="form-group">
-          <label>Precio de Compra</label>
-          <input 
-            type="number" 
-            value={precioCompra} 
-            onChange={(e) => setPrecioCompra(e.target.value)} 
-            placeholder="0.00"
-          />
+          <label>Proveedor *</label>
+          <select 
+            value={proveedorId} 
+            onChange={(e) => setProveedorId(e.target.value)} 
+            required
+            style={{ background: 'var(--bg)', color: 'var(--text)', border: '1px solid var(--border)', padding: '12px', borderRadius: '6px' }}
+          >
+            <option value="">-- Seleccione un proveedor --</option>
+            {proveedoresList.map((p) => (
+              <option key={p.codigo} value={p.codigo}>
+                {p.codigo} - {p.nombre}
+              </option>
+            ))}
+          </select>
         </div>
         <Button type="submit">Guardar Producto</Button>
       </form>
